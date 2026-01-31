@@ -11,13 +11,20 @@ DOT_KEYS_TUPLE = (".", "·")
 # ====================================================
 class LeanCodeParser:
     def __init__(self, code: str):
+        """Initialize parser with raw Lean code.
+
+        中文说明：使用原始 Lean 代码初始化解析器，保存原始行并预处理出去除注释与空行的内容。
+        """
         self.original_code = code
         self.original_lines = code.splitlines()
         self.cleaned_lines = self.strip_comments_and_blank_lines(code)
         self.cleaned_code = "\n".join(self.cleaned_lines)
 
     def formatting(self, code: str, keys: list[str] | None = None) -> str:
-        """Format the code by adding spaces around operators."""
+        """Format the code by adding spaces around operators.
+
+        中文说明：通过在运算符周围添加空格来规范代码排版，便于后续解析。
+        """
         if keys is None:
             keys = [":="]
         ret = re.sub(r":=", " := ", code, flags=re.DOTALL)
@@ -27,10 +34,18 @@ class LeanCodeParser:
         return ret  # noqa RET504
 
     def strip_brackets(self, code: str) -> str:
+        """Remove bracketed contents for structure checks.
+
+        中文说明：删除小括号、大括号和中括号中的内容，用于结构检测时忽略内部细节。
+        """
         pattern = r"\([^()]*?\)|{[^{}]*?}|\[[^\[\]]*?\]"
         return re.sub(pattern, "", code)
 
     def strip_comments_and_blank_lines(self, code: str) -> list[str]:
+        """Strip comments and blank lines; normalize special dot bullets.
+
+        中文说明：移除注释与空行，并处理以 . 或 · 开头的点写法，返回清洗后的代码行列表。
+        """
         cleaned = []
         tmp_code = re.sub(r"/-.*?(--/|-/)", "", code, flags=re.DOTALL)
         tmp_code = self.formatting(tmp_code)
@@ -51,6 +66,10 @@ class LeanCodeParser:
         return cleaned
 
     def get_indent(self, line: str) -> int:
+        """Return leading space count of a line.
+
+        中文说明：计算并返回行首空格数量，用于判定缩进层级。
+        """
         return len(line) - len(line.lstrip(" "))
 
     def extract_headers(self) -> dict:
@@ -63,6 +82,8 @@ class LeanCodeParser:
             "open_list": ["Nat", "Real", "Polynomial"],
             "set_option_list": ["set_option maxHeartbeats 0"]
         }
+
+        中文说明：解析文件头部的 import/open/set_option 语句，假设每条语句独占一行，返回对应的列表与原始行。
         """
         import_list = []
         open_list = []
@@ -208,6 +229,8 @@ class LeanCodeParser:
         """
         example:
             'have : 1 + 1 = 2 := by sorry'      ->      ('have : 1 + 1 = 2', 'by sorry')
+
+        中文说明：从代码片段中分离出“陈述部分”和“证明部分”，按 := 分割，返回二元组。
         """
         if ":=" not in code:
             return None
@@ -259,6 +282,8 @@ class LeanCodeParser:
             "proof_style"   :   str   "tactic" / "term" / "unknown"
             "inner_indent"  :   inner_indent
         }
+
+        中文说明：解析以指定 key 开头的语句块，抽取名称、陈述、证明样式等信息，生成统一的块描述字典。
         """
 
         raw = "\n".join(lines)
@@ -372,7 +397,10 @@ class LeanCodeParser:
         min_proof_lines: int = 0,
         max_proof_lines: int = 10000,
     ) -> Any:
-        """Extract all blocks from the code."""
+        """Extract all blocks from the code.
+
+        中文说明：从清洗后的代码中提取所有指定 key 的语句块，可控制是否允许重叠以及证明行数范围。
+        """
         if keys is None:
             keys = ["theorem"]
 
