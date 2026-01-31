@@ -20,6 +20,8 @@ def analyze_mcp_log(log_path: str | Path, out_dir: str | Path) -> dict:
 
     Returns:
         Summary dictionary with tool call statistics
+
+    中文说明：统计 MCP 日志中的工具调用次数与结果，将汇总信息保存为备份日志与 JSON 文件。
     """
     log_path = Path(log_path).expanduser().resolve()
     out_path = Path(out_dir).expanduser().resolve()
@@ -116,6 +118,8 @@ def get_mcp_log_path(
 
     Returns:
         Path to the log file, or None if mcp_log_dir is not specified
+
+    中文说明：根据日志目录与可选名称构造 MCP 日志文件路径，若未提供目录则返回 None。
     """
     base_path = Path(mcp_log_dir) if mcp_log_dir else Path("~/.lean_lsp_mcp").expanduser()
     log_name = f"{mcp_log_name}.log" if mcp_log_name else "mcp_lean_lsp.log"

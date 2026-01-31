@@ -17,6 +17,8 @@ def find_lean_files(folder_path: str | Path) -> List[Path]:
 
     Returns:
         Sorted list of .lean file paths
+
+    中文说明：递归遍历指定目录，收集所有 .lean 文件路径并按排序返回。
     """
     folder = Path(folder_path)
     if not folder.exists():
@@ -42,6 +44,8 @@ def find_lean_project_root(file_path: Path) -> Path:
 
     Returns:
         Project root path, or the file's parent if not found
+
+    中文说明：向上查找包含 lean-toolchain 的目录，若未找到则返回原路径的父目录。
     """
     current = file_path.parent if file_path.is_file() else file_path
     while current != current.parent:  # Until reaching root
@@ -62,6 +66,8 @@ def check_lean_file(file_path: Path) -> Tuple[bool, bool, str, str]:
 
     Returns:
         (has_error, has_sorry_warning, stdout, stderr)
+
+    中文说明：使用 lake env lean 检查单个 .lean 文件，返回是否有错误/包含 sorry 以及输出。
     """
     try:
         # Find project root containing lean-toolchain
@@ -103,6 +109,8 @@ def _check_wrapper(file_path: Path) -> Tuple[Path, bool, bool, str, str]:
 
     Returns:
         (file_path, has_error, has_sorry_warning, stdout, stderr)
+
+    中文说明：供多进程调用的包装函数，返回文件路径及检查结果。
     """
     has_error, has_sorry_warning, stdout, stderr = check_lean_file(file_path)
     return (file_path, has_error, has_sorry_warning, stdout, stderr)
@@ -120,6 +128,8 @@ def check_lean_files_parallel(
 
     Returns:
         List of (file_path, has_error, has_sorry_warning, stdout, stderr)
+
+    中文说明：并行检查多个 .lean 文件，返回每个文件的错误、sorry 警告与输出信息。
     """
     if num_proc is None:
         num_proc = cpu_count()
@@ -142,6 +152,8 @@ def check_folder(
 
     Returns:
         (all_passed, error_files, sorry_files)
+
+    中文说明：检查文件夹内所有 .lean 文件，返回整体是否通过、错误文件列表和含 sorry 的文件列表。
     """
     lean_files = find_lean_files(folder_path)
     if not lean_files:

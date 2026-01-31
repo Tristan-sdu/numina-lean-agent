@@ -1,5 +1,7 @@
 """
 Statement tracking utilities for detecting changes in theorem/lemma statements.
+
+中文说明：用于检测定理或引理陈述变更的跟踪工具集合。
 """
 
 from dataclasses import dataclass, field
@@ -11,7 +13,10 @@ from .extract_sublemmas import LeanCodeParser
 
 @dataclass
 class StatementSnapshot:
-    """Snapshot of a single statement."""
+    """Snapshot of a single statement.
+
+    中文说明：表示某个定理/引理陈述在特定时间的快照信息。
+    """
     file_path: Path
     name: str
     statement: str  # Statement without proof
@@ -19,7 +24,10 @@ class StatementSnapshot:
 
 @dataclass
 class StatementChange:
-    """Record of a statement change."""
+    """Record of a statement change.
+
+    中文说明：描述陈述变动的记录，包括文件、名称、原始与当前内容以及变更类型。
+    """
     file_path: Path
     name: str
     original: str
@@ -27,6 +35,10 @@ class StatementChange:
     change_type: Literal["modified", "added", "removed"]
 
     def __str__(self) -> str:
+        """String representation for easy logging.
+
+        中文说明：返回便于日志打印的字符串形式。
+        """
         return f"[{self.change_type}] {self.file_path}:{self.name}"
 
 
@@ -34,6 +46,8 @@ def extract_statements_from_file(file_path: Path) -> Dict[str, str]:
     """
     Extract all theorem/lemma statements from a Lean file.
     Returns a dict mapping theorem/lemma names to their statements (without proofs).
+
+    中文说明：从 Lean 文件中提取所有定理/引理的陈述（不含证明），返回名称到陈述的映射。
     """
     try:
         if not file_path.exists():
@@ -56,7 +70,10 @@ def extract_statements_from_file(file_path: Path) -> Dict[str, str]:
 
 
 def normalize_statement(statement: str) -> str:
-    """Normalize whitespace for comparison."""
+    """Normalize whitespace for comparison.
+
+    中文说明：压缩多余空白字符，便于进行陈述内容对比。
+    """
     return " ".join(statement.split())
 
 
@@ -79,13 +96,18 @@ class StatementTracker:
 
         Args:
             files: List of .lean files to track
+
+        中文说明：用需要监控的 .lean 文件初始化跟踪器并捕获初始快照。
         """
         self.files = [Path(f).resolve() for f in files]
         self.initial_snapshots: Dict[Path, Dict[str, str]] = {}
         self._capture_initial()
 
     def _capture_initial(self) -> None:
-        """Capture initial state of all statements."""
+        """Capture initial state of all statements.
+
+        中文说明：读取并保存所有目标文件的初始陈述状态。
+        """
         for f in self.files:
             self.initial_snapshots[f] = extract_statements_from_file(f)
 
@@ -95,6 +117,8 @@ class StatementTracker:
 
         Returns:
             List of statement changes (compared to initial state)
+
+        中文说明：对比当前陈述与初始快照，返回新增、删除或修改的陈述列表。
         """
         changes = []
 
@@ -130,13 +154,19 @@ class StatementTracker:
         return changes
 
     def get_initial_statements(self) -> Dict[Path, Dict[str, str]]:
-        """Get the initial snapshots."""
+        """Get the initial snapshots.
+
+        中文说明：返回初始陈述快照的副本。
+        """
         return self.initial_snapshots.copy()
 
 
 @dataclass
 class RoundResult:
-    """Result of a single run_claude_once call."""
+    """Result of a single run_claude_once call.
+
+    中文说明：记录 run_claude_once 单轮调用的结果信息。
+    """
     round_number: int
     stdout: str
     end_reason: Optional[str]  # COMPLETE / LIMIT / None
@@ -146,11 +176,17 @@ class RoundResult:
     line_counts: dict = field(default_factory=dict)  # {filename: line_count}
 
     def has_statement_changes(self) -> bool:
-        """Check if any statements were changed in this round."""
+        """Check if any statements were changed in this round.
+
+        中文说明：判断当前轮次是否出现陈述变动。
+        """
         return len(self.statement_changes) > 0
 
     def to_dict(self) -> dict:
-        """Convert to dictionary for JSON serialization."""
+        """Convert to dictionary for JSON serialization.
+
+        中文说明：转换为字典形式，便于 JSON 序列化。
+        """
         return {
             "round_number": self.round_number,
             "end_reason": self.end_reason,

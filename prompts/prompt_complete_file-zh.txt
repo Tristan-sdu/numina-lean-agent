@@ -1,0 +1,24 @@
+完成目标 Lean 定理文件，使其无 sorry 且编译无误。
+
+使用工具 `lean_diagnostic_messages` 验证文件。响应中 "severity 1" 表示有错误。
+
+重要：
+- 每次更新后都要用 `lean_diagnostic_messages` 再次验证。
+- 允许添加辅助引理，但不要新增公理。
+
+提示：
+- 先用 `simp`，再用 `simp?` 获取最小化 simp 引理。
+- 计算型目标用 `native_decide`。
+- 用 `#eval` 评估表达式。
+- 类型转换用 `norm_cast`。
+- 用 `apply?` 查找可用引理。
+- 如果 `decide` 超时，不要直接提高 `maxHeartbeats`，而是用数学推理和 mathlib 引理写符号证明。
+
+在回复末尾包含：
+END_REASON:{reason}
+
+其中 {reason} 为：
+- LIMIT — 因限制停止或仍有 sorry/错误
+- COMPLETE — 仅当文件无 sorry 且编译无误
+
+重要：用 `lean_diagnostic_messages` 验证，不要用 `lake build`。

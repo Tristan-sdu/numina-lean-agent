@@ -1,5 +1,7 @@
 """
 Task metadata and result definitions.
+
+中文说明：定义任务元数据与执行结果的数据结构。
 """
 
 from dataclasses import dataclass, field
@@ -14,7 +16,10 @@ if TYPE_CHECKING:
 
 @dataclass
 class TaskMetadata:
-    """Task metadata for Claude Lean proving tasks."""
+    """Task metadata for Claude Lean proving tasks.
+
+    中文说明：描述 Claude 处理 Lean 任务所需的配置与元信息。
+    """
 
     # Required fields
     task_type: Literal["file", "folder"]  # Task type
@@ -70,7 +75,10 @@ class TaskMetadata:
             self.mcp_log_dir = Path(self.mcp_log_dir).resolve()
 
     def get_prompt(self) -> str:
-        """Get prompt content (from prompt or prompt_file), with target path prepended."""
+        """Get prompt content (from prompt or prompt_file), with target path prepended.
+
+        中文说明：读取提示词（直接提供或来自文件），并在前缀附加目标路径信息。
+        """
         if self.prompt:
             base_prompt = self.prompt.strip()
         elif self.prompt_file and Path(self.prompt_file).exists():
@@ -84,11 +92,17 @@ class TaskMetadata:
         return target_info + base_prompt
 
     def get_check_path(self) -> Path:
-        """Get the path to check for lean files."""
+        """Get the path to check for lean files.
+
+        中文说明：获取需要进行 Lean 检查的路径。
+        """
         return self.target_path
 
     def build_env(self) -> dict:
-        """Build environment variables (including MCP_LOG_DIR and MCP_LOG_NAME)."""
+        """Build environment variables (including MCP_LOG_DIR and MCP_LOG_NAME).
+
+        中文说明：构造运行所需的环境变量，包含 MCP 日志目录与名称设置。
+        """
         env = os.environ.copy()
         if self.mcp_log_dir:
             # Ensure directory exists
@@ -99,7 +113,10 @@ class TaskMetadata:
         return env
 
     def to_dict(self) -> dict:
-        """Convert to dictionary for JSON serialization."""
+        """Convert to dictionary for JSON serialization.
+
+        中文说明：转换为字典格式，便于 JSON 序列化与持久化。
+        """
         return {
             "task_id": self.task_id,
             "task_type": self.task_type,
@@ -124,7 +141,10 @@ class TaskMetadata:
 
     @classmethod
     def from_dict(cls, data: dict) -> "TaskMetadata":
-        """Create TaskMetadata from dictionary."""
+        """Create TaskMetadata from dictionary.
+
+        中文说明：从字典数据构建 TaskMetadata 实例，处理时间与默认值。
+        """
         # Handle created_at if present
         created_at = data.get("created_at")
         if isinstance(created_at, str):
@@ -157,7 +177,10 @@ class TaskMetadata:
 
 @dataclass
 class TaskResult:
-    """Task execution result."""
+    """Task execution result.
+
+    中文说明：记录任务执行的结果数据，包括状态、时间、错误与轮次信息。
+    """
 
     task_id: str
     success: bool
@@ -172,18 +195,27 @@ class TaskResult:
 
     @property
     def duration_seconds(self) -> float:
-        """Get duration in seconds."""
+        """Get duration in seconds.
+
+        中文说明：计算任务执行时长（秒）。
+        """
         return (self.end_time - self.start_time).total_seconds()
 
     def get_all_statement_changes(self) -> List["StatementChange"]:
-        """Get all statement changes across all rounds."""
+        """Get all statement changes across all rounds.
+
+        中文说明：汇总全部轮次中的陈述变更记录。
+        """
         changes = []
         for rr in self.round_results:
             changes.extend(rr.statement_changes)
         return changes
 
     def to_dict(self) -> dict:
-        """Convert to dictionary for JSON serialization."""
+        """Convert to dictionary for JSON serialization.
+
+        中文说明：转换为字典格式，方便 JSON 序列化与存储。
+        """
         return {
             "task_id": self.task_id,
             "success": self.success,
@@ -200,7 +232,10 @@ class TaskResult:
 
     @classmethod
     def from_dict(cls, data: dict) -> "TaskResult":
-        """Create TaskResult from dictionary."""
+        """Create TaskResult from dictionary.
+
+        中文说明：从字典数据还原 TaskResult 实例（轮次细节不反序列化）。
+        """
         return cls(
             task_id=data["task_id"],
             success=data["success"],

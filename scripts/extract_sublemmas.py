@@ -123,6 +123,10 @@ class LeanCodeParser:
         keys: list[str] | None = None,
         except_line_prefix_list: list[str] | None = None,
     ) -> str:
+        """Extract lines excluding specified key blocks and prefixes.
+
+        中文说明：提取除特定关键块及特定前缀行之外的代码文本，常用于获取非定理部分内容。
+        """
         if keys is None:
             keys = ["theorem", "lemma"]
 
@@ -179,6 +183,8 @@ class LeanCodeParser:
             'key := xxx'           ->      'this'
             'key t1 (x : T) : ...' ->      't1'
             'key (x : T) : ...'    ->      'this'
+
+        中文说明：根据关键字行提取定理/引理名称，如果没有显式名称则返回默认值。
         """
         code = code.strip()
         if not code.startswith(f"{key} "):
@@ -201,6 +207,8 @@ class LeanCodeParser:
     def get_all_theorem_names(code: str) -> list[str]:
         """
         get all theorem names from the code
+
+        中文说明：从给定代码中收集全部定理或引理的名称列表。
         """
         p = LeanCodeParser(code)
         blocks = p.extract_all_blocks(keys=["theorem", "lemma"])
@@ -214,6 +222,8 @@ class LeanCodeParser:
             'theorem : xxx'            ->      'this'
             'theorem := xxx'           ->      'this'
             'theorem t1 (x : T) : ...' ->      't1'
+
+        中文说明：针对以 theorem/lemma 开头的语句提取名称，若缺失则返回默认名称。
         """
         assert code.startswith(
             ("theorem", "lemma")
@@ -342,6 +352,8 @@ class LeanCodeParser:
             "key"           :   key
             "info"          :   call parse_block (Dict)
         }
+
+        中文说明：从指定行号开始解析匹配 key 的语句块，返回包含范围、缩进与解析信息的字典。
         """
 
         if keys is None:
@@ -441,6 +453,8 @@ def create_statement_with_lemmas(
         should only contain theorems / lemmas, no def / abbrev
         'theorem / lemma' should be at the beginning of one line
         the proof should have nonempty indentation
+
+    中文说明：合并主定理与若干引理的代码，统一收集 import/open/set_option，并将引理转换为 lemma 形式后拼接成完整代码。
     """
     final_import_set = set()
     final_open_set = set()
@@ -517,6 +531,10 @@ def create_statement_with_lemmas(
 def gen_one_sorry_of_block(
     original_cleaned: str, block_to_replace: dict[str, Any]
 ) -> str:
+    """Replace a proof block with a sorry placeholder.
+
+    中文说明：将指定语句块的证明部分替换为 by sorry/ sorry 占位，返回替换后的代码文本。
+    """
     blockinfo = block_to_replace["info"]
     raw_block = "\n".join(block_to_replace["lines"])
     proof = blockinfo["proof"]
@@ -536,6 +554,10 @@ def create_proof_with_sorries(
     min_proof_lines: int = 0,
     max_proof_lines: int = 100000,
 ) -> str:
+    """Generate code with selected blocks replaced by sorry.
+
+    中文说明：查找指定 key 的语句块（如 have/replace），按行数与数量限制替换为 sorry 版本，返回整体代码。
+    """
     p = LeanCodeParser(original_statement)
     blocks = p.extract_all_blocks(
         keys=keys,
@@ -553,6 +575,8 @@ def create_proof_with_sorries(
 def add_newlines_before_keys(code: str, keys: list[str]) -> str:
     """
     add newlines before the lines that start with the keys
+
+    中文说明：在以指定关键字开头的行前插入空行，方便分隔阅读。
     """
     lines = code.splitlines()
     result_lines = []
@@ -565,6 +589,10 @@ def add_newlines_before_keys(code: str, keys: list[str]) -> str:
     return "\n".join(result_lines)
 
 def remove_imports(code: str, prefixes: list[str]) -> str:
+    """Remove imports whose package names match given prefixes.
+
+    中文说明：删除 import 语句中包名以任意给定前缀开头的行，返回清理后的代码。
+    """
     lines = code.splitlines()
     result_lines = []
     for line in lines:

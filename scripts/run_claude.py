@@ -6,6 +6,8 @@ Usage:
     python -m scripts.run_claude run <target> [options]
     python -m scripts.run_claude batch <config_file> [options]
     python -m scripts.run_claude from-folder <folder> [options]
+
+中文说明：用于在 Lean 定理证明任务上运行 Claude 的命令行接口，支持单任务、批量配置和按文件夹生成任务三种模式。
 """
 
 import json
@@ -22,7 +24,10 @@ from .lean_checker import find_lean_files
 
 
 class ClaudeRunner:
-    """Claude runner CLI for Lean theorem proving tasks."""
+    """Claude runner CLI for Lean theorem proving tasks.
+
+    中文说明：面向 Lean 定理证明场景的 Claude 命令行封装。
+    """
 
     def run(
         self,
@@ -65,6 +70,8 @@ class ClaudeRunner:
 
             # Folder
             python -m scripts.run_claude run /path/to/folder --task-type folder --prompt "..."
+
+        中文说明：运行单个任务（文件或文件夹），自动检测任务类型，校验提示词来源并执行，返回成功/失败退出码。
         """
         target_path = Path(target).resolve()
 
@@ -139,6 +146,8 @@ class ClaudeRunner:
         Examples:
             python -m scripts.run_claude batch tasks.yaml
             python -m scripts.run_claude batch tasks.yaml --parallel --max-workers 4
+
+        中文说明：从 JSON/YAML 配置文件批量加载任务，可选择并行执行，输出总览与失败列表，并据此返回退出码。
         """
         config_path = Path(config_file).resolve()
         if not config_path.exists():
@@ -214,6 +223,8 @@ class ClaudeRunner:
         Examples:
             python -m scripts.run_claude from-folder /path/to/folder --prompt-file prompt.txt
             python -m scripts.run_claude from-folder /path/to/folder --prompt-file prompt.txt --parallel --max-workers 4
+
+        中文说明：针对文件夹中的每个 .lean 文件生成独立任务，可选择并行执行，最终汇总结果并返回退出码。
         """
         folder_path = Path(folder).resolve()
         if not folder_path.exists():
@@ -260,7 +271,10 @@ class ClaudeRunner:
         return 0 if all(r.success for r in results) else 1
 
     def _print_result(self, result: TaskResult):
-        """Print single task result."""
+        """Print single task result.
+
+        中文说明：打印单个任务的状态、原因、轮次、耗时与错误信息，并展示行数变化。
+        """
         status = "SUCCESS" if result.success else "FAILED"
         print(f"\n{'=' * 60}")
         print(f"Task: {result.task_id}")
@@ -277,7 +291,10 @@ class ClaudeRunner:
         print("=" * 60)
 
     def _print_line_changes(self, result: TaskResult):
-        """Print line count changes between first and last round."""
+        """Print line count changes between first and last round.
+
+        中文说明：对比首轮与末轮的文件行数变化，输出增减与比例。
+        """
         if len(result.round_results) < 1:
             return
 
@@ -302,7 +319,10 @@ class ClaudeRunner:
                 print(f"  {filename}: {initial} -> {final} ({sign}{diff}, {ratio:+.1f}%)")
 
     def _print_batch_summary(self, results: List[TaskResult]):
-        """Print batch results summary."""
+        """Print batch results summary.
+
+        中文说明：汇总批量任务的成功/失败数量、耗时与各任务的行数变化，并列出失败详情。
+        """
         total = len(results)
         succeeded = sum(1 for r in results if r.success)
         failed = total - succeeded
@@ -357,7 +377,10 @@ class ClaudeRunner:
 
 
 def main():
-    """CLI entry point."""
+    """CLI entry point.
+
+    中文说明：fire 框架入口，提供命令行调用支持。
+    """
     fire.Fire(ClaudeRunner)
 
 

@@ -1,5 +1,7 @@
 """
 Core runner functions for executing Claude on Lean tasks.
+
+中文说明：面向 Lean 任务的 Claude 执行核心流程，包含单轮调用、会话控制、验证与批量运行逻辑。
 """
 
 import json
@@ -25,7 +27,10 @@ PAT_REASON = re.compile(r"(?m)^\s*END_REASON:(LIMIT|COMPLETE|SELECTED_TARGET_COM
 
 
 def get_line_counts(files: List[Path]) -> dict:
-    """Get line counts for files. Returns {filename: line_count}."""
+    """Get line counts for files. Returns {filename: line_count}.
+
+    中文说明：统计指定文件列表的行数，返回文件名到行数的映射。
+    """
     counts = {}
     for f in files:
         try:
@@ -51,6 +56,8 @@ def run_claude_once(
     Returns:
         (stdout, end_reason, returncode)
         end_reason: "COMPLETE" | "LIMIT" | None
+
+    中文说明：执行一次 claude 命令，返回标准输出、结束原因以及退出码。
     """
     kwargs = {
         "text": True,
@@ -72,7 +79,10 @@ def run_claude_once(
 
 
 def commit_round(round_num: int, cwd: Optional[Path] = None):
-    """Create a git commit after a round."""
+    """Create a git commit after a round.
+
+    中文说明：在每轮结束后尝试创建 git 提交，便于追踪迭代。
+    """
     timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     msg = f"[{timestamp}]_claude_round_{round_num:02d}"
     kwargs = {"cwd": str(cwd)} if cwd else {}
@@ -122,6 +132,8 @@ def run_claude_session(
 
     Returns:
         (end_reason, rounds_used, round_results)
+
+    中文说明：执行完整的 Claude 会话，自动处理继续指令、限制次数、回调验证、声明跟踪和结果落盘。
     """
     print(f"[info] Using prompt:\n{prompt[:120]}{'...' if len(prompt) > 120 else ''}\n")
 
@@ -137,7 +149,10 @@ def run_claude_session(
     initial_line_counts = get_line_counts(files_to_track) if files_to_track else {}
 
     def record_round(round_num: int, stdout: str, reason: Optional[str], returncode: int, duration: float) -> RoundResult:
-        """Record a round result and check for statement changes."""
+        """Record a round result and check for statement changes.
+
+        中文说明：记录单轮输出与结束原因，检查声明变动并即时保存结果。
+        """
         nonlocal statement_error
 
         changes = tracker.check() if tracker else []
@@ -313,6 +328,8 @@ def run_task(task: TaskMetadata) -> TaskResult:
 
     Returns:
         Task result
+
+    中文说明：执行单个任务，包括获取提示、构造环境、启动会话、验证与结果汇总。
     """
     start_time = datetime.now()
     error_message = None
@@ -344,6 +361,10 @@ def run_task(task: TaskMetadata) -> TaskResult:
 
         # Build verification callback
         def on_complete_callback() -> bool:
+            """Verification callback after COMPLETE signal.
+
+            中文说明：收到 COMPLETE 后执行验证逻辑，根据检查结果决定是否接受或重试。
+            """
             if not task.check_after_complete:
                 return True
 
@@ -506,6 +527,8 @@ def run_tasks(
 
     Returns:
         List of results (in same order as tasks)
+
+    中文说明：串行或并行执行多个任务，保持结果顺序并处理异常情况。
     """
     if not tasks:
         return []
